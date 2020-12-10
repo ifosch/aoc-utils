@@ -11,6 +11,7 @@ setup(
     entry_points={
         "console_scripts": [
             "setup=aoc_utils.setup:main",
+            "run_tests=aoc_utils.run_tests:main",
         ],
     },
 )
