@@ -3,25 +3,35 @@ import os
 from pathlib import Path
 
 def get_module_name(year):
-    return os.path.join(os.getcwd(), "aoc", "aoc{}".format(year))
+    return "aoc.aoc{}".format(year)
 
 
 def get_module_path(module_name):
-    return os.path.join("aoc", module_name)
+    return os.path.join(os.getcwd(), *module_name.split("."))
+
+
+def get_test_path(module_name):
+    return os.path.join(os.getcwd(), "tests", *module_name.split("."))
 
 
 def init_module(year):
-    module_path = get_module_path(get_module_name(year))
+    module_name = get_module_name(year)
+    module_path = get_module_path(module_name)
     try:
-        os.mkdir(module_path)
+        os.makedirs(module_path)
     except FileExistsError:
         pass
     Path(os.path.join(module_path, "__init__.py")).touch()
-    return module_path
+    test_module_path = get_test_path(module_name)
+    try:
+        os.makedirs(test_module_path)
+    except FileExistsError:
+        pass
+    return module_path, test_module_path
 
 
 def init_puzzle(year, day):
-    module_path = init_module(year)
+    module_path, test_module_path = init_module(year)
     test_code = """import pytest
 
 from aoc.aoc{} import q{:02d}
@@ -37,7 +47,7 @@ from aoc.aoc{} import q{:02d}
 def test_q{:02d}(input, expected):
     assert q{:02d}.solution(input) == expected
 """.format(year, day, day, day)
-    with open(os.path.join(module_path, "test_q{:02d}.py".format(day)), "w") as f:
+    with open(os.path.join(test_module_path, "test_q{:02d}.py".format(day)), "w") as f:
               f.write(test_code)
     puzzle_code = """def part1(data):
     return 0
